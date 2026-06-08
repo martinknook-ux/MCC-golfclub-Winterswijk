@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MCC Matchplay Calculator 2026 - Golfclub Winterswijk</title>
+  <meta name="theme-color" content="#1f6b3a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="MCC Calculator">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="icons/icon-180.png">
+  <link rel="icon" href="icons/icon-192.png">
+
+  <style>
+    :root{
+      --bg:#f5f7f3;--card:#ffffff;--text:#172016;--muted:#5c6659;--line:#d9dfd5;
+      --green:#1f6b3a;--green2:#e7f3ea;--yellow:#fff4a3;--blue:#cde3ff;--red:#ffd2d2;--orange:#ffe2b8;--white:#fff;
+      --danger:#9d2b2b;--shadow:0 10px 30px rgba(0,0,0,.08);--radius:18px;
+    }
+    *{box-sizing:border-box} body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.45}
+    header{background:linear-gradient(135deg,#164b2b,#2f7a46);color:#fff;padding:28px 16px;padding-top:calc(28px + env(safe-area-inset-top))}
+    .wrap{max-width:1120px;margin:0 auto}.hero{display:flex;gap:18px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+    h1{font-size:clamp(28px,4vw,44px);margin:0 0 8px}.sub{font-size:16px;opacity:.92;margin:0;max-width:760px}.badge{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.3);padding:10px 14px;border-radius:999px;font-weight:700}
+    main{padding:22px 16px calc(70px + env(safe-area-inset-bottom))}.grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px;margin-bottom:18px}
+    .card h2{margin:0 0 14px;font-size:22px}.team-title{display:flex;align-items:center;justify-content:space-between;gap:12px}.team-a{border-top:6px solid #2f7a46}.team-b{border-top:6px solid #2f5597}
+    .player{border:1px solid var(--line);border-radius:14px;padding:14px;margin-top:12px;background:#fbfcfb}.player h3{margin:0 0 12px;font-size:17px;color:var(--muted)}
+    .fields{display:grid;grid-template-columns:1.3fr .8fr .8fr .9fr;gap:10px}.match-fields{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+    label{display:block;font-size:12px;color:var(--muted);font-weight:700;margin:0 0 5px}input,select{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:12px;background:#fff;font-size:15px;color:var(--text)}
+    button{border:0;border-radius:14px;padding:12px 16px;font-weight:800;cursor:pointer;font-size:15px}.primary{background:var(--green);color:#fff}.secondary{background:#e9eee6;color:#17331f}.danger{background:#f5dddd;color:var(--danger)}.btn-row{display:flex;gap:10px;flex-wrap:wrap}
+    .result{display:none}.result.show{display:block}.summary{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.metric{background:var(--green2);border:1px solid #c9dfcf;border-radius:16px;padding:14px}.metric small{display:block;color:var(--muted);font-weight:700}.metric strong{font-size:24px;display:block;margin-top:4px}.big-result{font-size:26px;font-weight:900;margin:10px 0 6px}.note{color:var(--muted);font-size:14px;margin:6px 0}.warn{background:#fff7da;border:1px solid #eed073;border-radius:14px;padding:12px;margin:12px 0;color:#5d4700}
+    table{width:100%;border-collapse:collapse;margin-top:10px;background:#fff;border-radius:14px;overflow:hidden}th,td{border-bottom:1px solid var(--line);padding:10px;text-align:left;font-size:14px}th{background:#edf4ed;color:#25472d}.stroke-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin-top:12px}.stroke{padding:10px;border:1px solid var(--line);border-radius:12px;background:#fff}.stroke strong{display:block}
+    .tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}.tab{background:#e9eee6}.tab.active{background:var(--green);color:#fff}.section{display:none}.section.active{display:block}.score-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px}.hole-score{border:1px solid var(--line);border-radius:14px;padding:10px;background:#fff}.hole-score b{display:block;margin-bottom:6px}.live-status{font-size:28px;font-weight:900;margin:8px 0}.footer-note{font-size:12px;color:var(--muted);margin-top:18px}
+    .tee-wit{background:#fff}.tee-geel{background:var(--yellow)}.tee-blauw{background:var(--blue)}.tee-rood{background:var(--red)}.tee-oranje{background:var(--orange)}
+    @media(max-width:850px){.grid,.summary{grid-template-columns:1fr}.fields{grid-template-columns:1fr 1fr}.match-fields{grid-template-columns:1fr 1fr}.hero{align-items:flex-start}.badge{width:100%;text-align:center}}
+    @media(max-width:520px){.fields,.match-fields{grid-template-columns:1fr}.card{padding:14px}main{padding-left:10px;padding-right:10px}.big-result{font-size:22px}.live-status{font-size:24px}}
+    @media print{header,.tabs,.btn-row,.live-actions{display:none}.card{box-shadow:none;break-inside:avoid}main{padding:0}.section{display:block}.result{display:block}}
+  </style>
+</head>
+<body>
+<header>
+  <div class="wrap hero">
+    <div>
+      <h1>MCC Matchplay Calculator 2026</h1>
+      <p class="sub">Greensome matchplay berekening voor Golf & Country Club Winterswijk. Gebaseerd op baanhandicap, teamgemiddelde, 75% verschil en stroke index.</p>
+    </div>
+    <div class="badge">Golfclub Winterswijk</div>
+  </div>
+</header>
+<main class="wrap">
+  <div class="tabs">
+    <button class="tab active" data-tab="calc">Berekening</button>
+    <button class="tab" data-tab="live">Live wedstrijd</button>
+    <button class="tab" data-tab="info">Uitleg</button>
+  </div>
+
+  <div class="app-note"><b>App-versie:</b> werkt offline nadat hij eenmaal is geopend. Op iPhone kun je hem via Delen > Zet op beginscherm als app opslaan.</div>
+  <section id="calc" class="section active">
+    <div class="grid">
+      <div class="card team-a"><div class="team-title"><h2>Team A</h2></div><div id="teamA"></div></div>
+      <div class="card team-b"><div class="team-title"><h2>Team B</h2></div><div id="teamB"></div></div>
+    </div>
+    <div class="card">
+      <h2>Wedstrijd</h2>
+      <div class="match-fields">
+        <div><label for="holesType">Aantal holes</label><select id="holesType"><option value="front9">1e 9 holes</option><option value="back9">2e 9 holes</option><option value="18">18 holes</option><option value="custom">Ander aantal holes</option></select></div>
+        <div><label for="customHoles">Alleen bij ander aantal</label><input id="customHoles" type="number" min="1" max="18" value="12"></div>
+        <div><label for="startHole">Starthole bij ander aantal</label><select id="startHole"></select></div>
+        <div><label for="rounding">Afronding 75%</label><select id="rounding"><option value="normal">Normaal afronden</option><option value="up">Altijd naar boven</option><option value="down">Altijd naar beneden</option></select></div>
+      </div>
+      <p class="note">Bij 12 of een ander aantal holes wordt volgens het reglement de 18-holes slagentabel gebruikt. De app verdeelt slagen alleen over de gekozen holes.</p>
+      <div class="btn-row"><button class="primary" onclick="calculate()">Bereken</button><button class="secondary" onclick="resetForm()">Nieuwe berekening</button><button class="secondary" onclick="window.print()">Print / PDF</button></div>
+    </div>
+
+    <div id="result" class="card result">
+      <h2>Resultaat</h2>
+      <div id="resultContent"></div>
+    </div>
+  </section>
+
+  <section id="live" class="section">
+    <div class="card">
+      <h2>Live wedstrijd bijhouden</h2>
+      <p class="note">Vul eerst de berekening in. Daarna kun je per hole aangeven wie de hole wint. De stand wordt automatisch bijgehouden.</p>
+      <div class="live-status" id="liveStatus">Nog geen holes ingevuld</div>
+      <div class="btn-row live-actions"><button class="secondary" onclick="buildLiveScore()">Live score klaarzetten</button><button class="danger" onclick="clearLiveScore()">Live score wissen</button></div>
+      <div id="liveGrid" class="score-grid"></div>
+    </div>
+  </section>
+
+  <section id="info" class="section">
+    <div class="card">
+      <h2>Rekenregels MCC 2026</h2>
+      <ol>
+        <li>Bepaal per speler de baanhandicap met geslacht, tee-kleur en aantal holes.</li>
+        <li>Teamhandicap = baanhandicap speler 1 + speler 2, gedeeld door 2. Niet afronden.</li>
+        <li>Neem het verschil tussen beide teamhandicaps.</li>
+        <li>Neem 75% van dat verschil en rond dit af.</li>
+        <li>Het team met de hoogste teamhandicap ontvangt de slagen.</li>
+        <li>De slagen vallen op de holes met de laagste stroke index binnen de gespeelde holes.</li>
+      </ol>
+      <h3>Stroke index Winterswijk</h3>
+      <table><thead><tr><th>Hole</th><th>SI</th></tr></thead><tbody id="siTable"></tbody></table>
+      <p class="footer-note">Controleer bij wijzigingen van baanrating, tijdelijke scorekaart of wedstrijdreglement altijd of de gegevens in deze calculator nog kloppen.</p>
+    </div>
+  </section>
+</main>
+<div id="installBar" class="install-bar"><span>Tip: zet deze calculator op je beginscherm.</span><button onclick="document.getElementById('installBar').classList.add('hidden')">Oké</button></div>
+<script>
+const ratings={
+  men:{
+    18:{wit:{cr:69.1,par:69,sr:124},geel:{cr:68.0,par:69,sr:121},blauw:{cr:65.3,par:69,sr:110},rood:{cr:64.5,par:69,sr:109},oranje:{cr:61.5,par:69,sr:107}},
+    front9:{wit:{cr:35.3,par:35,sr:135},geel:{cr:34.8,par:35,sr:129},blauw:{cr:33.6,par:35,sr:114},rood:{cr:33.4,par:35,sr:114},oranje:{cr:31.3,par:35,sr:112}},
+    back9:{wit:{cr:33.9,par:34,sr:112},geel:{cr:33.4,par:34,sr:112},blauw:{cr:31.8,par:34,sr:107},rood:{cr:31.4,par:34,sr:105},oranje:{cr:30.3,par:34,sr:100}}
+  },
+  women:{
+    18:{geel:{cr:72.7,par:69,sr:134},blauw:{cr:69.6,par:69,sr:119},rood:{cr:69.4,par:69,sr:117},oranje:{cr:64.1,par:69,sr:104}},
+    front9:{geel:{cr:37.4,par:35,sr:149},blauw:{cr:35.8,par:35,sr:128},rood:{cr:35.4,par:35,sr:128},oranje:{cr:32.9,par:35,sr:105}},
+    back9:{geel:{cr:35.5,par:34,sr:120},blauw:{cr:33.9,par:34,sr:110},rood:{cr:34.1,par:34,sr:106},oranje:{cr:31.3,par:34,sr:102}}
+  }
+};
+const si={1:11,2:13,3:7,4:1,5:15,6:3,7:9,8:5,9:17,10:2,11:8,12:10,13:14,14:4,15:16,16:18,17:6,18:12};
+let lastCalc=null;
+function playerHtml(team,n){return `<div class="player"><h3>Speler ${n}</h3><div class="fields"><div><label>Naam</label><input id="${team}${n}name" placeholder="Naam"></div><div><label>Exact handicap</label><input id="${team}${n}hcp" type="number" step="0.1" min="-4" max="54" placeholder="23.7"></div><div><label>Geslacht</label><select id="${team}${n}gender" onchange="updateTees('${team}${n}')"><option value="men">Heren</option><option value="women">Dames</option></select></div><div><label>Tee</label><select id="${team}${n}tee"></select></div></div></div>`}
+function init(){document.getElementById('teamA').innerHTML=playerHtml('A',1)+playerHtml('A',2);document.getElementById('teamB').innerHTML=playerHtml('B',1)+playerHtml('B',2);['A1','A2','B1','B2'].forEach(updateTees);for(let i=1;i<=18;i++){startHole.innerHTML+=`<option value="${i}">${i}</option>`;siTable.innerHTML+=`<tr><td>${i}</td><td>${si[i]}</td></tr>`}document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>switchTab(b.dataset.tab)));}
+function updateTees(prefix){const gender=document.getElementById(prefix+'gender').value;const sel=document.getElementById(prefix+'tee');const current=sel.value;const tees=gender==='men'?['wit','geel','blauw','rood','oranje']:['geel','blauw','rood','oranje'];sel.innerHTML=tees.map(t=>`<option value="${t}">${cap(t)}</option>`).join('');if(tees.includes(current)) sel.value=current; else sel.value=gender==='men'?'geel':'rood';sel.className='tee-'+sel.value;sel.onchange=()=>sel.className='tee-'+sel.value;}
+function cap(s){return s.charAt(0).toUpperCase()+s.slice(1)}
+function roundNormal(x){return Math.floor(x+0.5)}
+function courseHandicap(index,gender,tee){const set=ratings[gender][index][tee];if(!set) throw new Error('Geen rating voor deze combinatie.');const hi=parseFloat(eventValue.currentHcp);const factor=(index==='18')?hi:(hi/2);return Math.round((factor*set.sr/113)+(set.cr-set.par));}
+function getPlayer(prefix,index){const name=document.getElementById(prefix+'name').value.trim()||prefix;const hcp=parseFloat(document.getElementById(prefix+'hcp').value.replace(',','.'));if(Number.isNaN(hcp)) throw new Error(`Vul een geldige handicap in bij ${name}.`);const gender=document.getElementById(prefix+'gender').value;const tee=document.getElementById(prefix+'tee').value;eventValue.currentHcp=hcp;return {name,hcp,gender,tee,ch:courseHandicap(index,gender,tee)};}
+const eventValue={currentHcp:0};
+function playedHoles(){const type=holesType.value;if(type==='front9')return [1,2,3,4,5,6,7,8,9];if(type==='back9')return [10,11,12,13,14,15,16,17,18];if(type==='18')return Array.from({length:18},(_,i)=>i+1);let start=parseInt(startHole.value), count=Math.max(1,Math.min(18,parseInt(customHoles.value)||12));let arr=[];for(let i=0;i<count;i++)arr.push(((start-1+i)%18)+1);return arr;}
+function indexForCalc(){return holesType.value==='back9'?'back9':holesType.value==='front9'?'front9':'18'}
+function capStrokes(raw,holesCount){if(holesType.value==='front9'||holesType.value==='back9')return Math.min(raw,9);if(holesType.value==='18')return Math.min(raw,18);return Math.min(raw,holesCount);}
+function calculate(){try{const idx=indexForCalc();const A=[getPlayer('A1',idx),getPlayer('A2',idx)];const B=[getPlayer('B1',idx),getPlayer('B2',idx)];const teamA=(A[0].ch+A[1].ch)/2;const teamB=(B[0].ch+B[1].ch)/2;const diff=Math.abs(teamA-teamB);const raw75=diff*.75;let rounded=rounding.value==='up'?Math.ceil(raw75):rounding.value==='down'?Math.floor(raw75):roundNormal(raw75);const holes=playedHoles();const strokes=capStrokes(rounded,holes.length);const receiver=teamA>teamB?'Team A':teamB>teamA?'Team B':'Geen team';const strokeList=assignStrokes(strokes,holes);lastCalc={A,B,teamA,teamB,diff,raw75,rounded,strokes,receiver,holes,strokeList};renderResult();buildLiveScore();switchTab('calc');}catch(e){alert(e.message)}}
+function assignStrokes(strokes,holes){const sorted=[...holes].sort((a,b)=>si[a]-si[b]);let out=[];for(let i=0;i<strokes;i++){const hole=sorted[i%sorted.length];let found=out.find(x=>x.hole===hole);if(found)found.strokes++;else out.push({hole,si:si[hole],strokes:1});}return out.sort((a,b)=>a.hole-b.hole);}
+function renderTeamRows(team){return team.map(p=>`<tr><td>${p.name}</td><td>${p.hcp.toFixed(1)}</td><td>${p.gender==='men'?'Heren':'Dames'}</td><td>${cap(p.tee)}</td><td><b>${p.ch}</b></td></tr>`).join('')}
+function renderResult(){const r=lastCalc;const holesText=r.holes.length===18?'18 holes':`${r.holes.length} holes (${r.holes[0]} t/m ${r.holes[r.holes.length-1]})`;let html=`<div class="summary"><div class="metric"><small>Teamhandicap A</small><strong>${fmt(r.teamA)}</strong></div><div class="metric"><small>Teamhandicap B</small><strong>${fmt(r.teamB)}</strong></div><div class="metric"><small>75% verschil</small><strong>${fmt(r.raw75)}</strong></div><div class="metric"><small>Slagen</small><strong>${r.strokes}</strong></div></div>`;
+html+=`<p class="big-result">${r.receiver==='Geen team'?'Er worden geen slagen gegeven.':r.receiver+' ontvangt '+r.strokes+' slag'+(r.strokes===1?'':'en')+'.'}</p>`;
+html+=`<p class="note">Gespeeld: ${holesText}. Verschil teamhandicaps: ${fmt(r.diff)}. 75% daarvan: ${fmt(r.raw75)}. Afgerond: ${r.rounded}. Na maximum: ${r.strokes}.</p>`;
+html+=`<h3>Baanhandicap per speler</h3><table><thead><tr><th>Speler</th><th>Exact hcp</th><th>Geslacht</th><th>Tee</th><th>Baan hcp</th></tr></thead><tbody>${renderTeamRows(r.A)}${renderTeamRows(r.B)}</tbody></table>`;
+if(r.strokeList.length){html+=`<h3>Slagen op deze holes</h3><div class="stroke-grid">`+r.strokeList.map(x=>`<div class="stroke"><strong>Hole ${x.hole}</strong>SI ${x.si}<br>${x.strokes} slag${x.strokes===1?'':'en'}</div>`).join('')+`</div>`} else html+=`<p class="warn">Geen slagen te verrekenen.</p>`;
+html+=`<h3>Uitleg</h3><p>Voor elk team zijn de baanhandicaps van beide spelers opgeteld en gedeeld door 2. Dit gemiddelde is niet afgerond. Daarna is 75% van het verschil tussen de teams genomen. Het team met de hoogste teamhandicap ontvangt de slagen op de holes met de laagste stroke index.</p>`;
+resultContent.innerHTML=html;result.classList.add('show');}
+function fmt(n){return (Math.round(n*10)/10).toLocaleString('nl-NL',{minimumFractionDigits:1,maximumFractionDigits:1})}
+function switchTab(id){document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===id));document.querySelectorAll('.section').forEach(s=>s.classList.toggle('active',s.id===id));}
+function buildLiveScore(){if(!lastCalc){liveGrid.innerHTML='';liveStatus.textContent='Vul eerst de berekening in.';return}liveGrid.innerHTML=lastCalc.holes.map(h=>`<div class="hole-score"><b>Hole ${h}</b><select onchange="updateLiveStatus()" data-hole="${h}"><option value="0">Gelijk</option><option value="A">Team A</option><option value="B">Team B</option></select></div>`).join('');updateLiveStatus();}
+function updateLiveStatus(){if(!lastCalc)return;let score=0, played=0;document.querySelectorAll('#liveGrid select').forEach(s=>{if(s.value==='A'){score++;played++}else if(s.value==='B'){score--;played++}else if(s.value==='0'){played++}});const remaining=lastCalc.holes.length-played;const abs=Math.abs(score);let text='All square';if(score>0)text=`Team A ${abs} up`;if(score<0)text=`Team B ${abs} up`;if(abs>remaining && played>0){text+=` - wedstrijd beslist: ${abs}&${remaining}`;}else if(abs===remaining && abs>0){text+=` - dormie`;}
+liveStatus.textContent=text;}
+function clearLiveScore(){document.querySelectorAll('#liveGrid select').forEach(s=>s.value='0');updateLiveStatus();}
+function resetForm(){document.querySelectorAll('input').forEach(i=>{if(i.id==='customHoles')i.value=12;else i.value=''});result.classList.remove('show');lastCalc=null;liveGrid.innerHTML='';liveStatus.textContent='Nog geen holes ingevuld';}
+if ('serviceWorker' in navigator) { window.addEventListener('load', () => navigator.serviceWorker.register('./service-worker.js').catch(()=>{})); }
+if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) { document.getElementById('installBar').classList.add('hidden'); }
+init();
+</script>
+</body>
+</html>
