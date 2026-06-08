@@ -30,7 +30,7 @@
     button{border:0;border-radius:14px;padding:12px 16px;font-weight:800;cursor:pointer;font-size:15px}.primary{background:var(--green);color:#fff}.secondary{background:#e9eee6;color:#17331f}.danger{background:#f5dddd;color:var(--danger)}.btn-row{display:flex;gap:10px;flex-wrap:wrap}
     .result{display:none}.result.show{display:block}.summary{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.metric{background:var(--green2);border:1px solid #c9dfcf;border-radius:16px;padding:14px}.metric small{display:block;color:var(--muted);font-weight:700}.metric strong{font-size:24px;display:block;margin-top:4px}.big-result{font-size:26px;font-weight:900;margin:10px 0 6px}.note{color:var(--muted);font-size:14px;margin:6px 0}.warn{background:#fff7da;border:1px solid #eed073;border-radius:14px;padding:12px;margin:12px 0;color:#5d4700}
     table{width:100%;border-collapse:collapse;margin-top:10px;background:#fff;border-radius:14px;overflow:hidden}th,td{border-bottom:1px solid var(--line);padding:10px;text-align:left;font-size:14px}th{background:#edf4ed;color:#25472d}.stroke-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin-top:12px}.stroke{padding:10px;border:1px solid var(--line);border-radius:12px;background:#fff}.stroke strong{display:block}
-    .tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}.tab{background:#e9eee6}.tab.active{background:var(--green);color:#fff}.section{display:none}.section.active{display:block}.score-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px}.hole-score{border:1px solid var(--line);border-radius:14px;padding:10px;background:#fff}.hole-score b{display:block;margin-bottom:6px}.live-status{font-size:28px;font-weight:900;margin:8px 0}.footer-note{font-size:12px;color:var(--muted);margin-top:18px}
+    .tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}.tab{background:#e9eee6}.tab.active{background:var(--green);color:#fff}.section{display:none}.section.active{display:block}.score-grid{display:grid;grid-template-columns:1fr;gap:10px}.hole-score{border:1px solid var(--line);border-radius:14px;padding:12px;background:#fff}.hole-score b{display:block;margin-bottom:6px}.score-row{display:grid;grid-template-columns:70px 1fr 1fr 1fr;gap:8px;align-items:end}.score-row input{padding:10px}.net-note{font-size:12px;color:var(--muted);margin-top:6px}.hole-winner{font-weight:800}.live-status{font-size:28px;font-weight:900;margin:8px 0}.footer-note{font-size:12px;color:var(--muted);margin-top:18px}
     .tee-wit{background:#fff}.tee-geel{background:var(--yellow)}.tee-blauw{background:var(--blue)}.tee-rood{background:var(--red)}.tee-oranje{background:var(--orange)}
     @media(max-width:850px){.grid,.summary{grid-template-columns:1fr}.fields{grid-template-columns:1fr 1fr}.match-fields{grid-template-columns:1fr 1fr}.hero{align-items:flex-start}.badge{width:100%;text-align:center}}
     @media(max-width:520px){.fields,.match-fields{grid-template-columns:1fr}.card{padding:14px}main{padding-left:10px;padding-right:10px}.big-result{font-size:22px}.live-status{font-size:24px}}
@@ -81,9 +81,9 @@
   <section id="live" class="section">
     <div class="card">
       <h2>Live wedstrijd bijhouden</h2>
-      <p class="note">Vul eerst de berekening in. Daarna kun je per hole aangeven wie de hole wint. De stand wordt automatisch bijgehouden.</p>
+      <p class="note">Vul eerst de berekening in. Daarna vul je per hole de bruto teamscore in. De app trekt eventuele slagen automatisch af en bepaalt wie de hole wint.</p>
       <div class="live-status" id="liveStatus">Nog geen holes ingevuld</div>
-      <div class="btn-row live-actions"><button class="secondary" onclick="buildLiveScore()">Live score klaarzetten</button><button class="danger" onclick="clearLiveScore()">Live score wissen</button></div>
+      <div class="btn-row live-actions"><button class="secondary" onclick="buildLiveScore()">Scorekaart klaarzetten</button><button class="danger" onclick="clearLiveScore()">Scores wissen</button></div>
       <div id="liveGrid" class="score-grid"></div>
     </div>
   </section>
@@ -144,10 +144,79 @@ html+=`<h3>Uitleg</h3><p>Voor elk team zijn de baanhandicaps van beide spelers o
 resultContent.innerHTML=html;result.classList.add('show');}
 function fmt(n){return (Math.round(n*10)/10).toLocaleString('nl-NL',{minimumFractionDigits:1,maximumFractionDigits:1})}
 function switchTab(id){document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===id));document.querySelectorAll('.section').forEach(s=>s.classList.toggle('active',s.id===id));}
-function buildLiveScore(){if(!lastCalc){liveGrid.innerHTML='';liveStatus.textContent='Vul eerst de berekening in.';return}liveGrid.innerHTML=lastCalc.holes.map(h=>`<div class="hole-score"><b>Hole ${h}</b><select onchange="updateLiveStatus()" data-hole="${h}"><option value="0">Gelijk</option><option value="A">Team A</option><option value="B">Team B</option></select></div>`).join('');updateLiveStatus();}
-function updateLiveStatus(){if(!lastCalc)return;let score=0, played=0;document.querySelectorAll('#liveGrid select').forEach(s=>{if(s.value==='A'){score++;played++}else if(s.value==='B'){score--;played++}else if(s.value==='0'){played++}});const remaining=lastCalc.holes.length-played;const abs=Math.abs(score);let text='All square';if(score>0)text=`Team A ${abs} up`;if(score<0)text=`Team B ${abs} up`;if(abs>remaining && played>0){text+=` - wedstrijd beslist: ${abs}&${remaining}`;}else if(abs===remaining && abs>0){text+=` - dormie`;}
-liveStatus.textContent=text;}
-function clearLiveScore(){document.querySelectorAll('#liveGrid select').forEach(s=>s.value='0');updateLiveStatus();}
+function strokesOnHole(hole){
+  if(!lastCalc || !lastCalc.strokeList) return 0;
+  const found=lastCalc.strokeList.find(x=>x.hole===hole);
+  return found ? found.strokes : 0;
+}
+function receivingSide(){
+  if(!lastCalc) return null;
+  if(lastCalc.receiver==='Team A') return 'A';
+  if(lastCalc.receiver==='Team B') return 'B';
+  return null;
+}
+function buildLiveScore(){
+  if(!lastCalc){liveGrid.innerHTML='';liveStatus.textContent='Vul eerst de berekening in.';return}
+  const recv=receivingSide();
+  liveGrid.innerHTML=lastCalc.holes.map(h=>{
+    const st=strokesOnHole(h);
+    const strokeText=st ? `${recv==='A'?'Team A':'Team B'} krijgt ${st} slag${st===1?'':'en'}` : 'Geen slag op deze hole';
+    return `<div class="hole-score" data-hole-card="${h}">
+      <div class="score-row">
+        <div><b>Hole ${h}</b><span class="net-note">SI ${si[h]}</span></div>
+        <div><label>Bruto Team A</label><input inputmode="numeric" type="number" min="1" max="15" data-hole="${h}" data-team="A" oninput="updateLiveStatus()" placeholder="-" /></div>
+        <div><label>Bruto Team B</label><input inputmode="numeric" type="number" min="1" max="15" data-hole="${h}" data-team="B" oninput="updateLiveStatus()" placeholder="-" /></div>
+        <div><span class="hole-winner" id="winner-${h}">Nog geen score</span></div>
+      </div>
+      <div class="net-note" id="net-${h}">${strokeText}</div>
+    </div>`
+  }).join('');
+  updateLiveStatus();
+}
+function updateLiveStatus(){
+  if(!lastCalc)return;
+  const recv=receivingSide();
+  let score=0, played=0;
+  lastCalc.holes.forEach(h=>{
+    const aInput=document.querySelector(`#liveGrid input[data-hole="${h}"][data-team="A"]`);
+    const bInput=document.querySelector(`#liveGrid input[data-hole="${h}"][data-team="B"]`);
+    if(!aInput || !bInput) return;
+    const aRaw=parseInt(aInput.value,10);
+    const bRaw=parseInt(bInput.value,10);
+    const st=strokesOnHole(h);
+    let aNet=Number.isFinite(aRaw)?aRaw:null;
+    let bNet=Number.isFinite(bRaw)?bRaw:null;
+    if(aNet!==null && recv==='A') aNet-=st;
+    if(bNet!==null && recv==='B') bNet-=st;
+    const winEl=document.getElementById(`winner-${h}`);
+    const netEl=document.getElementById(`net-${h}`);
+    const strokeText=st ? `${recv==='A'?'Team A':'Team B'} krijgt ${st} slag${st===1?'':'en'}.` : 'Geen slag op deze hole.';
+    if(aNet===null || bNet===null){
+      if(winEl) winEl.textContent='Nog geen score';
+      if(netEl) netEl.textContent=strokeText;
+      return;
+    }
+    played++;
+    if(aNet<bNet){score++; if(winEl) winEl.textContent='Team A wint';}
+    else if(bNet<aNet){score--; if(winEl) winEl.textContent='Team B wint';}
+    else {if(winEl) winEl.textContent='Hole gelijk';}
+    if(netEl) netEl.textContent=`${strokeText} Netto: Team A ${aNet}, Team B ${bNet}.`;
+  });
+  const remaining=lastCalc.holes.length-played;
+  const abs=Math.abs(score);
+  let text='All square';
+  if(score>0)text=`Team A ${abs} up`;
+  if(score<0)text=`Team B ${abs} up`;
+  if(abs>remaining && played>0){text+=` - wedstrijd beslist: ${abs}&${remaining}`;}
+  else if(abs===remaining && abs>0){text+=` - dormie`;}
+  if(played===0) text='Nog geen holes ingevuld';
+  liveStatus.textContent=text;
+}
+function clearLiveScore(){
+  document.querySelectorAll('#liveGrid input').forEach(i=>i.value='');
+  document.querySelectorAll('[id^="winner-"]').forEach(e=>e.textContent='Nog geen score');
+  updateLiveStatus();
+}
 function resetForm(){document.querySelectorAll('input').forEach(i=>{if(i.id==='customHoles')i.value=12;else i.value=''});result.classList.remove('show');lastCalc=null;liveGrid.innerHTML='';liveStatus.textContent='Nog geen holes ingevuld';}
 if ('serviceWorker' in navigator) { window.addEventListener('load', () => navigator.serviceWorker.register('./service-worker.js').catch(()=>{})); }
 if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) { document.getElementById('installBar').classList.add('hidden'); }
