@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>MCC Matchplay Calculator 2026 - Golfclub Winterswijk</title>
+  <title>MCC Matchplay Calculator 2026 v3 - Golfclub Winterswijk</title>
   <meta name="theme-color" content="#1f6b3a">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -30,10 +30,10 @@
     button{border:0;border-radius:14px;padding:12px 16px;font-weight:800;cursor:pointer;font-size:15px}.primary{background:var(--green);color:#fff}.secondary{background:#e9eee6;color:#17331f}.danger{background:#f5dddd;color:var(--danger)}.btn-row{display:flex;gap:10px;flex-wrap:wrap}
     .result{display:none}.result.show{display:block}.summary{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.metric{background:var(--green2);border:1px solid #c9dfcf;border-radius:16px;padding:14px}.metric small{display:block;color:var(--muted);font-weight:700}.metric strong{font-size:24px;display:block;margin-top:4px}.big-result{font-size:26px;font-weight:900;margin:10px 0 6px}.note{color:var(--muted);font-size:14px;margin:6px 0}.warn{background:#fff7da;border:1px solid #eed073;border-radius:14px;padding:12px;margin:12px 0;color:#5d4700}
     table{width:100%;border-collapse:collapse;margin-top:10px;background:#fff;border-radius:14px;overflow:hidden}th,td{border-bottom:1px solid var(--line);padding:10px;text-align:left;font-size:14px}th{background:#edf4ed;color:#25472d}.stroke-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin-top:12px}.stroke{padding:10px;border:1px solid var(--line);border-radius:12px;background:#fff}.stroke strong{display:block}
-    .tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}.tab{background:#e9eee6}.tab.active{background:var(--green);color:#fff}.section{display:none}.section.active{display:block}.score-grid{display:grid;grid-template-columns:1fr;gap:10px}.hole-score{border:1px solid var(--line);border-radius:14px;padding:12px;background:#fff}.hole-score b{display:block;margin-bottom:6px}.score-row{display:grid;grid-template-columns:70px 1fr 1fr 1fr;gap:8px;align-items:end}.score-row input{padding:10px}.net-note{font-size:12px;color:var(--muted);margin-top:6px}.hole-winner{font-weight:800}.live-status{font-size:28px;font-weight:900;margin:8px 0}.footer-note{font-size:12px;color:var(--muted);margin-top:18px}
+    .tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}.tab{background:#e9eee6}.tab.active{background:var(--green);color:#fff}.section{display:none}.section.active{display:block}.score-grid{display:grid;grid-template-columns:1fr;gap:10px}.hole-score{border:1px solid var(--line);border-radius:14px;padding:12px;background:#fff}.hole-score b{display:block;margin-bottom:6px}.score-row{display:grid;grid-template-columns:70px 1fr 1fr 1fr;gap:8px;align-items:end}.score-row input{padding:10px}.net-note{font-size:12px;color:var(--muted);margin-top:6px}.hole-winner{font-weight:800}.live-status{font-size:28px;font-weight:900;margin:8px 0}.live-details{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:10px 0 14px}.live-detail{background:var(--green2);border:1px solid #c9dfcf;border-radius:14px;padding:10px}.live-detail small{display:block;color:var(--muted);font-weight:800;font-size:11px}.live-detail strong{display:block;font-size:18px;margin-top:2px}.footer-note{font-size:12px;color:var(--muted);margin-top:18px}
     .tee-wit{background:#fff}.tee-geel{background:var(--yellow)}.tee-blauw{background:var(--blue)}.tee-rood{background:var(--red)}.tee-oranje{background:var(--orange)}
     @media(max-width:850px){.grid,.summary{grid-template-columns:1fr}.fields{grid-template-columns:1fr 1fr}.match-fields{grid-template-columns:1fr 1fr}.hero{align-items:flex-start}.badge{width:100%;text-align:center}}
-    @media(max-width:520px){.fields,.match-fields{grid-template-columns:1fr}.card{padding:14px}main{padding-left:10px;padding-right:10px}.big-result{font-size:22px}.live-status{font-size:24px}}
+    @media(max-width:520px){.fields,.match-fields{grid-template-columns:1fr}.card{padding:14px}main{padding-left:10px;padding-right:10px}.big-result{font-size:22px}.live-status{font-size:24px}.live-details{grid-template-columns:1fr}}
     @media print{header,.tabs,.btn-row,.live-actions{display:none}.card{box-shadow:none;break-inside:avoid}main{padding:0}.section{display:block}.result{display:block}}
   </style>
 </head>
@@ -83,6 +83,11 @@
       <h2>Live wedstrijd bijhouden</h2>
       <p class="note">Vul eerst de berekening in. Daarna vul je per hole de bruto teamscore in. De app trekt eventuele slagen automatisch af en bepaalt wie de hole wint.</p>
       <div class="live-status" id="liveStatus">Nog geen holes ingevuld</div>
+      <div class="live-details" id="liveDetails">
+        <div class="live-detail"><small>Gespeeld</small><strong>0</strong></div>
+        <div class="live-detail"><small>Te gaan</small><strong>-</strong></div>
+        <div class="live-detail"><small>Voordeel</small><strong>AS</strong></div>
+      </div>
       <div class="btn-row live-actions"><button class="secondary" onclick="buildLiveScore()">Scorekaart klaarzetten</button><button class="danger" onclick="clearLiveScore()">Scores wissen</button></div>
       <div id="liveGrid" class="score-grid"></div>
     </div>
@@ -202,15 +207,31 @@ function updateLiveStatus(){
     else {if(winEl) winEl.textContent='Hole gelijk';}
     if(netEl) netEl.textContent=`${strokeText} Netto: Team A ${aNet}, Team B ${bNet}.`;
   });
-  const remaining=lastCalc.holes.length-played;
+  const total=lastCalc.holes.length;
+  const remaining=total-played;
   const abs=Math.abs(score);
-  let text='All square';
-  if(score>0)text=`Team A ${abs} up`;
-  if(score<0)text=`Team B ${abs} up`;
-  if(abs>remaining && played>0){text+=` - wedstrijd beslist: ${abs}&${remaining}`;}
-  else if(abs===remaining && abs>0){text+=` - dormie`;}
-  if(played===0) text='Nog geen holes ingevuld';
+  const leadingTeam=score>0?'Team A':score<0?'Team B':null;
+  let text='Live scoring: All square';
+  let advantage='AS';
+  if(leadingTeam){
+    text=`Live scoring: ${abs} up ${leadingTeam} - ${remaining} hole${remaining===1?'':'s'} te gaan`;
+    advantage=`${abs} up ${leadingTeam}`;
+  }
+  if(played===0){
+    text='Nog geen holes ingevuld';
+    advantage='AS';
+  } else if(remaining===0){
+    text=leadingTeam ? `Eindstand: ${abs} up ${leadingTeam}` : 'Eindstand: All square';
+  } else if(leadingTeam && abs>remaining){
+    text=`Wedstrijd beslist: ${leadingTeam} wint ${abs}&${remaining}`;
+  } else if(leadingTeam && abs===remaining){
+    text+=` - dormie ${leadingTeam}`;
+  }
   liveStatus.textContent=text;
+  const detail=document.getElementById('liveDetails');
+  if(detail){
+    detail.innerHTML=`<div class="live-detail"><small>Gespeeld</small><strong>${played} / ${total}</strong></div><div class="live-detail"><small>Te gaan</small><strong>${remaining}</strong></div><div class="live-detail"><small>Voordeel</small><strong>${advantage}</strong></div>`;
+  }
 }
 function clearLiveScore(){
   document.querySelectorAll('#liveGrid input').forEach(i=>i.value='');
